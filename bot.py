@@ -47,7 +47,7 @@ welcome_text = (
     "☠️ **Ходы 100+ — Финал:** шанс экстрима ×1.5.\n\n"
     "Если смелости не хватает — придётся выпить. 🥃\n\n"
     "Кто же ты — игрок или лузер? Не испугался?\n\n"
-    "Тогда жми **/start** и попытайся продержаться как можно дольше. Удачи! 🃏"
+    "Тогда жми **/gaz** и попытайся продержаться как можно дольше. Удачи! 🃏"
 )
 
 brudershaft_phrases = [
@@ -327,13 +327,11 @@ def pull_card(deck_name, is_arrow=False):
         player_scores[player_idx] += score
         response += f"\n\n🎰 ×2 БАЛЛОВ! +{score} дополнительно!"
 
-    # Прогресс-бар каждые 20 ходов
     if turn % 20 == 0 and not is_arrow:
         stage = get_stage()
         next_stage = "Жара" if turn < 50 else "Ад" if turn < 75 else "Финал" if turn < 100 else "Конец"
         response += f"\n\n📊 Прогресс: {turn} ходов. Текущий этап: {stage}. Следующий: {next_stage}"
 
-    # Чекпоинты
     if turn == 50 and current_story:
         response += f"\n\n{current_story['ch50']}"
     elif turn == 75 and current_story:
@@ -359,6 +357,9 @@ def next_phrase(name, score):
     return random.choice(phrases)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(welcome_text)
+
+async def gaz_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     hour = datetime.now().hour
     if hour < 6:
         greeting = "🌙 Доброй ночи"
@@ -396,8 +397,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if not game_started:
-        if text.upper() == "/START":
-            await start(update, context)
+        if text.upper() == "/GAZ":
+            await gaz_start(update, context)
             return
         await update.message.reply_text(welcome_text)
         return
@@ -434,7 +435,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             response = "Сначала вытяни карту."
     elif text_upper in ("📋 КОМАНДЫ", "КОМАНДЫ"):
-        response = "📋 /start /restart /stats /finish /vibe /rules /top /ping"
+        response = "📋 /start /gaz /restart /stats /finish /vibe /rules /top /ping"
     elif text_upper in ("/RESTART",):
         reset_game()
         response = "🔄 Колоды сброшены!"
@@ -508,8 +509,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             else:
                 response += current_story.get("end_brave_m", "").format(name=player_names[1], partner=player_names[0])
 
-        response += "\n\nСпасибо за игру! /start — новая игра."
-        reset_game()
+        response += "\n\nСпасибо за игру! /gaz — новая игра."
+        game_started = False
     elif text_upper in ("/VIBE",):
         if current_story:
             response = random.choice(current_story["vibes"])
@@ -541,6 +542,7 @@ if __name__ == "__main__":
     load_decks()
     telegram_app = Application.builder().token(TOKEN).build()
     telegram_app.add_handler(CommandHandler("start", start))
+    telegram_app.add_handler(CommandHandler("gaz", gaz_start))
     telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     async def run_bot():
