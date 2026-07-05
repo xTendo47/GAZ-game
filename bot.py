@@ -5,7 +5,7 @@ from flask import Flask, request
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-TOKEN = "8539185338:AAFfeRhe-uGYE_znA5f1QPTSVsTOUtmOY90"
+TOKEN = "8785235169:AAFSyRBfJ4acy8fE5ip2bxWFXvVobTyzP1Y"
 PORT = int(os.environ.get("PORT", 10000))
 RENDER_URL = "https://gas-bot-4cyt.onrender.com"
 
